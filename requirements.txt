@@ -11,3 +11,12 @@ ultralytics==8.4.7
 tensorboard
 seaborn==0.13.2
 fvcore
+torch>=2.2
+torchvision>=0.17
+timm>=1.0
+torchinfo>=1.8
+streamlit>=1.40
+pytest>=8.0
+
+# Optional on supported Linux/NVIDIA systems only:
+# mambavision

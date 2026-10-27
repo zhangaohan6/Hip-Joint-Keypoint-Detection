@@ -225,6 +225,86 @@ The standard experimental and inference pipeline is as follows:
 3. 🧠 **Stage 2 (Keypoint)**: Run `train_hip_crop_keypoints.py` or `kfold_train_hip_crop_keypoints.py` and specify the desired Backbone and Head to train the single-side keypoint model.
 4. 📈 **Evaluation**: Run `predict_hip_crop_keypoints.py` or `kfold_predict_hip_crop_keypoints.py` to perform dataset inference and calculate AI angle errors and IHDI classification accuracy.
 
+### Apple Silicon MVP quickstart
+
+The ConvNeXt/HRNet workflow runs on Apple Silicon without the optional
+CUDA-only MambaVision dependencies.
+
+```bash
+uv python install 3.10
+uv venv --python 3.10 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+
+PATH="$PWD/.venv/bin:$PATH" bash prepare_MTDDH_dataset
+.venv/bin/python split.py \
+  --dataset dataset/mtddh_xray_2d --out data \
+  --train 0.8 --val 0.1 --test 0.1 --seed 42
+
+.venv/bin/pytest -q
+.venv/bin/streamlit run app.py
+```
+
+When the trained checkpoint is present, the Streamlit app runs bilateral
+ConvNeXt-SimCC inference on public MTDDH samples, maps crop predictions back to
+the full X-ray, compares them with ground truth, calculates left/right
+acetabular-index angles, and runs a Monte Carlo keypoint-perturbation analysis.
+The public detection boxes define the hip ROIs; ground-truth keypoints are used
+only for the displayed comparison. The interval is an engineering sensitivity
+estimate, not calibrated model confidence or clinical uncertainty.
+
+### Reproducible 5-epoch smoke baseline
+
+```bash
+.venv/bin/python train_hip_crop_keypoints.py \
+  --data_dir data --model_name convnext_tiny_fpn1234concat \
+  --input_size 224 --epochs 5 --learning_rate 0.0001 --batch_size 8 \
+  --side left --mirror --head_type simcc_2d --split_ratio 3.0 --sigma 4.0 \
+  --max_train_samples 128 --max_val_samples 32 \
+  --num_workers 0 --no_show --seed 42
+```
+
+On an Apple M4 using MPS, this smoke run completed in about 40 seconds. The
+best epoch reached validation loss `2.2078`, NME `0.0371`, and crop-space mean
+pixel error `12.8050`. Evaluation over the full 166-image validation split
+gave mean crop-space errors of `10.6564 px` for left hips and `11.3691 px` for
+mirrored right hips. These are pipeline smoke-test results from only 128
+training samples, not final model performance.
+
+### Full 30-epoch baseline
+
+```bash
+.venv/bin/python train_hip_crop_keypoints.py \
+  --data_dir data --model_name convnext_tiny_fpn1234concat \
+  --input_size 224 --epochs 30 --learning_rate 0.0001 --batch_size 64 \
+  --side left --mirror --head_type simcc_2d --split_ratio 3.0 --sigma 4.0 \
+  --num_workers 0 --no_show --seed 42
+```
+
+On an Apple M4 using MPS, the full run completed in about 67 minutes. The
+best validation crop-space error was `4.0597 px`. Full-split evaluation of the
+saved EMA checkpoint produced mean errors of `3.3838 px` (left) and `3.5996 px`
+(mirrored right) on validation, and `3.5427 px` (left) and `3.6588 px`
+(mirrored right) on test. Predictions remain a research baseline and must not
+be interpreted as clinical measurements.
+
+### YOLO11n bilateral ROI detector
+
+```bash
+.venv/bin/python train_yolo.py \
+  --data data/data.yaml --model yolo11n.pt \
+  --epochs 50 --patience 10 --imgsz 640 --batch 16 \
+  --device mps --workers 0 \
+  --project runs/train --name yolo11n_mtddh_640 \
+  --pretrained --seed 42 --fliplr 0 --flipud 0 \
+  --degrees 0 --shear 0 --perspective 0 --mosaic 0 --mixup 0
+```
+
+Training stopped at epoch 42 after ten epochs without improvement; the best
+checkpoint was from epoch 32. On the held-out 168-image test split (336 hip
+ROIs), it reached precision `0.9995`, recall `1.0000`, mAP50 `0.9950`, and
+mAP50-95 `0.8683`. Left/right mAP50-95 was `0.8754`/`0.8612`. Generated model
+weights and run directories are intentionally gitignored.
+
 > 💡 **For detailed environment setup, the K-Fold cross-validation workflow, and complete command-line configurations, please refer to the [📖 Advanced Usage Guide](docs/USAGE_GUIDE.md).**
 
 ## 🔧 Analysis & Visualization Tools

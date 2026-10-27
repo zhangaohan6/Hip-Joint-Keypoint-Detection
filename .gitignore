@@ -4,6 +4,8 @@
 events.out.tfevents.*
 *__pycache__/
 *.pyc
+.venv/
+dataset/temp_repo/
 kfold_tmp/
 logs/
 data/

@@ -43,13 +43,19 @@ from models.convnextv2.convnextv2_custom import (
     ConvNeXtV2Large
 )
 
-from models.mambavision.mambavision_custom import (
-    MambaVisionSmall,
-    MambaVisionBase,
-    MambaVisionLarge,
-    MambaVisionSmallWithConvNeXt,
-    MambaVisionBaseWithConvNeXt
-)
+try:
+    from models.mambavision.mambavision_custom import (
+        MambaVisionSmall,
+        MambaVisionBase,
+        MambaVisionLarge,
+        MambaVisionSmallWithConvNeXt,
+        MambaVisionBaseWithConvNeXt,
+    )
+    _MAMBAVISION_IMPORT_ERROR = None
+except ImportError as exc:
+    # MambaVision depends on CUDA-only mamba-ssm builds. Keep the other
+    # backbones usable on CPU and Apple Silicon when it is not installed.
+    _MAMBAVISION_IMPORT_ERROR = exc
 
 from functools import partial
 from models.inceptionnext.inceptionnext_custom import (
@@ -97,14 +103,6 @@ MODEL = {
     "convnext_v2_base": ConvNeXtV2Base,
     "convnext_v2_large": ConvNeXtV2Large,
     
-    # MambaVision 系列模型。
-    
-    "mambavision_small": MambaVisionSmall,
-    "mambavision_base": MambaVisionBase,
-    "mambavision_large": MambaVisionLarge,
-    "mambavision_small_convnext": MambaVisionSmallWithConvNeXt,
-    "mambavision_base_convnext": MambaVisionBaseWithConvNeXt,
-    
     # InceptionNext 系列模型。
     
     "inceptionnext_small": InceptionNextSmall,
@@ -114,8 +112,23 @@ MODEL = {
     "hrnet_w48": HRNetW48Custom,
 }
 
+if _MAMBAVISION_IMPORT_ERROR is None:
+    MODEL.update({
+        "mambavision_small": MambaVisionSmall,
+        "mambavision_base": MambaVisionBase,
+        "mambavision_large": MambaVisionLarge,
+        "mambavision_small_convnext": MambaVisionSmallWithConvNeXt,
+        "mambavision_base_convnext": MambaVisionBaseWithConvNeXt,
+    })
+
 def initialize_model(model_name, num_points, head_type="direct_regression", input_size=None, Nx=None, Ny=None, **kwargs):
     model_name = model_name.lower()
+
+    if model_name.startswith("mambavision") and _MAMBAVISION_IMPORT_ERROR is not None:
+        raise ImportError(
+            "MambaVision is unavailable. Install its optional CUDA dependencies "
+            "on a supported Linux/NVIDIA environment."
+        ) from _MAMBAVISION_IMPORT_ERROR
 
     if model_name not in MODEL:
         raise ValueError(f"Unknown model: {model_name}")

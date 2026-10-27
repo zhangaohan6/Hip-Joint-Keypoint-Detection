@@ -7,6 +7,7 @@ import torchvision.transforms.functional as TF
 
 from models.model import initialize_model
 from utils.keypoints import get_pred_coords
+from utils.device import get_best_device
 from utils.csv_parser import parse_csv_get_points
 from utils.evaluation import extract_info_from_model_path
 
@@ -52,7 +53,7 @@ def predict_onestage(model_name, model_path, data_dir, output_dir, fold_index=No
     else:
         Nx = Ny = None
         
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_best_device()
     model = initialize_model(model_name, num_points=total_points, head_type=head_type, input_size=(input_size, input_size), Nx=Nx, Ny=Ny)
     model.load_state_dict(torch.load(model_path, map_location="cpu"))
     model.to(device).eval()

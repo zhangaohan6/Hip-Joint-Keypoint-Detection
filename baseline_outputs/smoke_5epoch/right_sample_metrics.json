@@ -1,0 +1,832 @@
+[
+  {
+    "image": "dataset1_train_a1.jpg",
+    "mean_error_px": 6.105193138122559,
+    "max_error_px": 10.592521667480469
+  },
+  {
+    "image": "dataset1_train_a14.jpg",
+    "mean_error_px": 11.079240798950195,
+    "max_error_px": 16.42371940612793
+  },
+  {
+    "image": "dataset1_train_a150.jpg",
+    "mean_error_px": 9.63680362701416,
+    "max_error_px": 17.23530387878418
+  },
+  {
+    "image": "dataset1_train_a160.jpg",
+    "mean_error_px": 8.72282886505127,
+    "max_error_px": 14.015572547912598
+  },
+  {
+    "image": "dataset1_train_a178.jpg",
+    "mean_error_px": 14.821542739868164,
+    "max_error_px": 23.3092041015625
+  },
+  {
+    "image": "dataset1_train_a189.jpg",
+    "mean_error_px": 9.231488227844238,
+    "max_error_px": 18.866867065429688
+  },
+  {
+    "image": "dataset1_train_a192.jpg",
+    "mean_error_px": 11.792522430419922,
+    "max_error_px": 15.903977394104004
+  },
+  {
+    "image": "dataset1_train_a211.jpg",
+    "mean_error_px": 10.552708625793457,
+    "max_error_px": 23.112342834472656
+  },
+  {
+    "image": "dataset1_train_a251.jpg",
+    "mean_error_px": 11.72814655303955,
+    "max_error_px": 18.000959396362305
+  },
+  {
+    "image": "dataset1_train_a252.jpg",
+    "mean_error_px": 9.718147277832031,
+    "max_error_px": 16.84616470336914
+  },
+  {
+    "image": "dataset1_train_a260.jpg",
+    "mean_error_px": 12.044657707214355,
+    "max_error_px": 14.959086418151855
+  },
+  {
+    "image": "dataset1_train_a267.jpg",
+    "mean_error_px": 13.261086463928223,
+    "max_error_px": 18.441181182861328
+  },
+  {
+    "image": "dataset1_train_a268.jpg",
+    "mean_error_px": 14.753978729248047,
+    "max_error_px": 20.764827728271484
+  },
+  {
+    "image": "dataset1_train_a269.jpg",
+    "mean_error_px": 9.714615821838379,
+    "max_error_px": 11.375182151794434
+  },
+  {
+    "image": "dataset1_train_a27.jpg",
+    "mean_error_px": 9.133578300476074,
+    "max_error_px": 11.64229679107666
+  },
+  {
+    "image": "dataset1_train_a273.jpg",
+    "mean_error_px": 11.429957389831543,
+    "max_error_px": 18.19255828857422
+  },
+  {
+    "image": "dataset1_train_a280.jpg",
+    "mean_error_px": 13.839773178100586,
+    "max_error_px": 19.693334579467773
+  },
+  {
+    "image": "dataset1_train_a29.jpg",
+    "mean_error_px": 10.760313034057617,
+    "max_error_px": 17.366596221923828
+  },
+  {
+    "image": "dataset1_train_a293.jpg",
+    "mean_error_px": 10.500703811645508,
+    "max_error_px": 14.386636734008789
+  },
+  {
+    "image": "dataset1_train_a300.jpg",
+    "mean_error_px": 11.918207168579102,
+    "max_error_px": 17.395952224731445
+  },
+  {
+    "image": "dataset1_train_a310.jpg",
+    "mean_error_px": 6.775687217712402,
+    "max_error_px": 12.966373443603516
+  },
+  {
+    "image": "dataset1_train_a333.jpg",
+    "mean_error_px": 10.455893516540527,
+    "max_error_px": 17.458988189697266
+  },
+  {
+    "image": "dataset1_train_a352.jpg",
+    "mean_error_px": 9.21968936920166,
+    "max_error_px": 11.777572631835938
+  },
+  {
+    "image": "dataset1_train_a359.jpg",
+    "mean_error_px": 9.569192886352539,
+    "max_error_px": 16.87421989440918
+  },
+  {
+    "image": "dataset1_train_a360.jpg",
+    "mean_error_px": 10.724861145019531,
+    "max_error_px": 15.992362022399902
+  },
+  {
+    "image": "dataset1_train_a378.jpg",
+    "mean_error_px": 9.72062873840332,
+    "max_error_px": 17.21562957763672
+  },
+  {
+    "image": "dataset1_train_a386.jpg",
+    "mean_error_px": 9.707608222961426,
+    "max_error_px": 17.37779998779297
+  },
+  {
+    "image": "dataset1_train_a393.jpg",
+    "mean_error_px": 16.68047523498535,
+    "max_error_px": 19.370975494384766
+  },
+  {
+    "image": "dataset1_train_a414.jpg",
+    "mean_error_px": 10.194973945617676,
+    "max_error_px": 14.5493803024292
+  },
+  {
+    "image": "dataset1_train_a425.jpg",
+    "mean_error_px": 17.000215530395508,
+    "max_error_px": 37.17353820800781
+  },
+  {
+    "image": "dataset1_train_a431.jpg",
+    "mean_error_px": 6.006680011749268,
+    "max_error_px": 10.924761772155762
+  },
+  {
+    "image": "dataset1_train_a440.jpg",
+    "mean_error_px": 8.989742279052734,
+    "max_error_px": 16.521074295043945
+  },
+  {
+    "image": "dataset1_train_b100.jpg",
+    "mean_error_px": 8.80423641204834,
+    "max_error_px": 15.223941802978516
+  },
+  {
+    "image": "dataset1_train_b137.jpg",
+    "mean_error_px": 8.980668067932129,
+    "max_error_px": 12.157575607299805
+  },
+  {
+    "image": "dataset1_train_b144.jpg",
+    "mean_error_px": 8.475007057189941,
+    "max_error_px": 17.795499801635742
+  },
+  {
+    "image": "dataset1_train_b152.jpg",
+    "mean_error_px": 17.15342140197754,
+    "max_error_px": 24.029983520507812
+  },
+  {
+    "image": "dataset1_train_b16.jpg",
+    "mean_error_px": 5.410013675689697,
+    "max_error_px": 8.885400772094727
+  },
+  {
+    "image": "dataset1_train_b160.jpg",
+    "mean_error_px": 8.143900871276855,
+    "max_error_px": 11.912095069885254
+  },
+  {
+    "image": "dataset1_train_b162.jpg",
+    "mean_error_px": 6.205038070678711,
+    "max_error_px": 12.410548210144043
+  },
+  {
+    "image": "dataset1_train_b70.jpg",
+    "mean_error_px": 5.573007583618164,
+    "max_error_px": 11.063292503356934
+  },
+  {
+    "image": "dataset1_train_b80.jpg",
+    "mean_error_px": 8.048364639282227,
+    "max_error_px": 12.675101280212402
+  },
+  {
+    "image": "dataset1_train_b96.jpg",
+    "mean_error_px": 9.734834671020508,
+    "max_error_px": 13.640254974365234
+  },
+  {
+    "image": "dataset1_train_b98.jpg",
+    "mean_error_px": 7.856863021850586,
+    "max_error_px": 14.314854621887207
+  },
+  {
+    "image": "dataset1_train_c100.jpg",
+    "mean_error_px": 8.345823287963867,
+    "max_error_px": 12.44357681274414
+  },
+  {
+    "image": "dataset1_train_c122.jpg",
+    "mean_error_px": 11.72421646118164,
+    "max_error_px": 16.03046226501465
+  },
+  {
+    "image": "dataset1_train_c145.jpg",
+    "mean_error_px": 8.696111679077148,
+    "max_error_px": 11.323068618774414
+  },
+  {
+    "image": "dataset1_train_c33.jpg",
+    "mean_error_px": 11.646721839904785,
+    "max_error_px": 16.143245697021484
+  },
+  {
+    "image": "dataset1_train_c34.jpg",
+    "mean_error_px": 8.384317398071289,
+    "max_error_px": 11.294560432434082
+  },
+  {
+    "image": "dataset1_train_c44.jpg",
+    "mean_error_px": 7.844680309295654,
+    "max_error_px": 16.012914657592773
+  },
+  {
+    "image": "dataset1_train_c62.jpg",
+    "mean_error_px": 13.860185623168945,
+    "max_error_px": 16.38215446472168
+  },
+  {
+    "image": "dataset1_train_c72.jpg",
+    "mean_error_px": 7.043575286865234,
+    "max_error_px": 11.941790580749512
+  },
+  {
+    "image": "dataset1_train_c75.jpg",
+    "mean_error_px": 8.239328384399414,
+    "max_error_px": 12.986120223999023
+  },
+  {
+    "image": "dataset1_train_c88.jpg",
+    "mean_error_px": 14.007287979125977,
+    "max_error_px": 26.92068862915039
+  },
+  {
+    "image": "dataset1_train_c91.jpg",
+    "mean_error_px": 8.992727279663086,
+    "max_error_px": 11.113069534301758
+  },
+  {
+    "image": "dataset1_train_c94.jpg",
+    "mean_error_px": 7.715352535247803,
+    "max_error_px": 18.825517654418945
+  },
+  {
+    "image": "dataset1_train_c97.jpg",
+    "mean_error_px": 7.344420433044434,
+    "max_error_px": 15.282842636108398
+  },
+  {
+    "image": "dataset1_train_d2.jpg",
+    "mean_error_px": 13.241600036621094,
+    "max_error_px": 16.417552947998047
+  },
+  {
+    "image": "dataset1_train_e17.jpg",
+    "mean_error_px": 37.74098205566406,
+    "max_error_px": 46.24579620361328
+  },
+  {
+    "image": "dataset1_train_e19.jpg",
+    "mean_error_px": 40.14094543457031,
+    "max_error_px": 46.787757873535156
+  },
+  {
+    "image": "dataset1_train_e20.jpg",
+    "mean_error_px": 9.572992324829102,
+    "max_error_px": 18.78744888305664
+  },
+  {
+    "image": "dataset1_train_e55.jpg",
+    "mean_error_px": 22.691438674926758,
+    "max_error_px": 33.184391021728516
+  },
+  {
+    "image": "dataset1_train_e59.jpg",
+    "mean_error_px": 30.740949630737305,
+    "max_error_px": 34.30748748779297
+  },
+  {
+    "image": "dataset1_train_w101.jpg",
+    "mean_error_px": 12.69987678527832,
+    "max_error_px": 16.922243118286133
+  },
+  {
+    "image": "dataset1_train_w117.jpg",
+    "mean_error_px": 13.197600364685059,
+    "max_error_px": 16.732900619506836
+  },
+  {
+    "image": "dataset1_train_w134.jpg",
+    "mean_error_px": 9.768880844116211,
+    "max_error_px": 12.590034484863281
+  },
+  {
+    "image": "dataset1_train_w141.jpg",
+    "mean_error_px": 9.27905559539795,
+    "max_error_px": 13.127120018005371
+  },
+  {
+    "image": "dataset1_train_w145.jpg",
+    "mean_error_px": 12.898018836975098,
+    "max_error_px": 16.181453704833984
+  },
+  {
+    "image": "dataset1_train_w55.jpg",
+    "mean_error_px": 12.062108039855957,
+    "max_error_px": 13.892638206481934
+  },
+  {
+    "image": "dataset1_train_w65.jpg",
+    "mean_error_px": 10.437193870544434,
+    "max_error_px": 14.079008102416992
+  },
+  {
+    "image": "dataset1_train_w69.jpg",
+    "mean_error_px": 10.696544647216797,
+    "max_error_px": 14.715667724609375
+  },
+  {
+    "image": "dataset1_train_w90.jpg",
+    "mean_error_px": 9.915350914001465,
+    "max_error_px": 12.893068313598633
+  },
+  {
+    "image": "dataset1_train_y16.jpg",
+    "mean_error_px": 7.923612594604492,
+    "max_error_px": 12.225530624389648
+  },
+  {
+    "image": "dataset1_train_y34.jpg",
+    "mean_error_px": 7.892416954040527,
+    "max_error_px": 11.473347663879395
+  },
+  {
+    "image": "dataset1_train_y36.jpg",
+    "mean_error_px": 8.064888954162598,
+    "max_error_px": 12.279479026794434
+  },
+  {
+    "image": "dataset1_train_y69.jpg",
+    "mean_error_px": 11.595436096191406,
+    "max_error_px": 16.277860641479492
+  },
+  {
+    "image": "dataset1_validation_b42.jpg",
+    "mean_error_px": 9.011595726013184,
+    "max_error_px": 18.030736923217773
+  },
+  {
+    "image": "dataset1_validation_c29.jpg",
+    "mean_error_px": 8.69064712524414,
+    "max_error_px": 18.353452682495117
+  },
+  {
+    "image": "dataset1_validation_c3.jpg",
+    "mean_error_px": 5.772688865661621,
+    "max_error_px": 14.916977882385254
+  },
+  {
+    "image": "dataset1_validation_h124.jpg",
+    "mean_error_px": 23.738821029663086,
+    "max_error_px": 38.50599670410156
+  },
+  {
+    "image": "dataset1_validation_h258.jpg",
+    "mean_error_px": 9.931591033935547,
+    "max_error_px": 11.746923446655273
+  },
+  {
+    "image": "dataset1_validation_h333.jpg",
+    "mean_error_px": 31.770187377929688,
+    "max_error_px": 37.4807243347168
+  },
+  {
+    "image": "dataset1_validation_h370.jpg",
+    "mean_error_px": 39.37334442138672,
+    "max_error_px": 50.52177429199219
+  },
+  {
+    "image": "dataset1_validation_h372.jpg",
+    "mean_error_px": 7.418416500091553,
+    "max_error_px": 12.633806228637695
+  },
+  {
+    "image": "dataset1_validation_h417.jpg",
+    "mean_error_px": 48.07609558105469,
+    "max_error_px": 55.73878860473633
+  },
+  {
+    "image": "dataset2_0461839c_img.png",
+    "mean_error_px": 15.023958206176758,
+    "max_error_px": 25.02794075012207
+  },
+  {
+    "image": "dataset2_049d0208_img.png",
+    "mean_error_px": 10.980937957763672,
+    "max_error_px": 15.304685592651367
+  },
+  {
+    "image": "dataset2_070bb21f_img.png",
+    "mean_error_px": 9.525859832763672,
+    "max_error_px": 14.597701072692871
+  },
+  {
+    "image": "dataset2_0b7d21a1_img.png",
+    "mean_error_px": 10.646736145019531,
+    "max_error_px": 15.54065990447998
+  },
+  {
+    "image": "dataset2_0ecbe79a_img.png",
+    "mean_error_px": 6.439795970916748,
+    "max_error_px": 11.075387954711914
+  },
+  {
+    "image": "dataset2_11fbe849_img.png",
+    "mean_error_px": 8.061492919921875,
+    "max_error_px": 15.300374984741211
+  },
+  {
+    "image": "dataset2_167f23c0_img.png",
+    "mean_error_px": 10.28325080871582,
+    "max_error_px": 26.09258270263672
+  },
+  {
+    "image": "dataset2_186700c5_img.png",
+    "mean_error_px": 9.509688377380371,
+    "max_error_px": 14.302836418151855
+  },
+  {
+    "image": "dataset2_19a2174a_img.png",
+    "mean_error_px": 9.268434524536133,
+    "max_error_px": 20.38632583618164
+  },
+  {
+    "image": "dataset2_1a150bc5_img.png",
+    "mean_error_px": 12.608656883239746,
+    "max_error_px": 17.630102157592773
+  },
+  {
+    "image": "dataset2_1ec88fb8_img.png",
+    "mean_error_px": 5.27817440032959,
+    "max_error_px": 9.680274963378906
+  },
+  {
+    "image": "dataset2_219c2eba_img.png",
+    "mean_error_px": 13.068625450134277,
+    "max_error_px": 22.006473541259766
+  },
+  {
+    "image": "dataset2_24584ba1_img.png",
+    "mean_error_px": 7.487845420837402,
+    "max_error_px": 13.87358283996582
+  },
+  {
+    "image": "dataset2_25bfa975_img.png",
+    "mean_error_px": 11.30388355255127,
+    "max_error_px": 20.219751358032227
+  },
+  {
+    "image": "dataset2_2854aaeb_img.png",
+    "mean_error_px": 9.375545501708984,
+    "max_error_px": 19.45458984375
+  },
+  {
+    "image": "dataset2_2cf74ceb_img.png",
+    "mean_error_px": 11.576672554016113,
+    "max_error_px": 23.276456832885742
+  },
+  {
+    "image": "dataset2_2d0c66a6_img.png",
+    "mean_error_px": 4.784086227416992,
+    "max_error_px": 7.619276523590088
+  },
+  {
+    "image": "dataset2_2d2fb87f_img.png",
+    "mean_error_px": 9.645563125610352,
+    "max_error_px": 18.93598747253418
+  },
+  {
+    "image": "dataset2_2dbb8211_img.png",
+    "mean_error_px": 8.593682289123535,
+    "max_error_px": 11.732150077819824
+  },
+  {
+    "image": "dataset2_3808274e_img.png",
+    "mean_error_px": 15.730446815490723,
+    "max_error_px": 23.086959838867188
+  },
+  {
+    "image": "dataset2_3be986e2_img.png",
+    "mean_error_px": 8.13277530670166,
+    "max_error_px": 17.359609603881836
+  },
+  {
+    "image": "dataset2_3fd59524_img.png",
+    "mean_error_px": 9.570042610168457,
+    "max_error_px": 23.507713317871094
+  },
+  {
+    "image": "dataset2_41e8c93f_img.png",
+    "mean_error_px": 12.749324798583984,
+    "max_error_px": 17.245744705200195
+  },
+  {
+    "image": "dataset2_47b74016_img.png",
+    "mean_error_px": 13.66535758972168,
+    "max_error_px": 17.50472640991211
+  },
+  {
+    "image": "dataset2_4ab46f79_img.png",
+    "mean_error_px": 10.715263366699219,
+    "max_error_px": 17.947324752807617
+  },
+  {
+    "image": "dataset2_4b927d43_img.png",
+    "mean_error_px": 10.683258056640625,
+    "max_error_px": 14.241411209106445
+  },
+  {
+    "image": "dataset2_4f7f2819_img.png",
+    "mean_error_px": 9.073049545288086,
+    "max_error_px": 18.508541107177734
+  },
+  {
+    "image": "dataset2_4fb8052a_img.png",
+    "mean_error_px": 9.41785717010498,
+    "max_error_px": 17.082719802856445
+  },
+  {
+    "image": "dataset2_512c19ed_img.png",
+    "mean_error_px": 7.423967361450195,
+    "max_error_px": 10.654586791992188
+  },
+  {
+    "image": "dataset2_56139d55_img.png",
+    "mean_error_px": 12.144861221313477,
+    "max_error_px": 16.983661651611328
+  },
+  {
+    "image": "dataset2_56952ee1_img.png",
+    "mean_error_px": 12.464035034179688,
+    "max_error_px": 18.910037994384766
+  },
+  {
+    "image": "dataset2_5ade2b06_img.png",
+    "mean_error_px": 13.268900871276855,
+    "max_error_px": 15.1759614944458
+  },
+  {
+    "image": "dataset2_5b9e889f_img.png",
+    "mean_error_px": 13.022478103637695,
+    "max_error_px": 18.996322631835938
+  },
+  {
+    "image": "dataset2_65af3b68_img.png",
+    "mean_error_px": 14.136035919189453,
+    "max_error_px": 19.73116683959961
+  },
+  {
+    "image": "dataset2_6857fa2a_img.png",
+    "mean_error_px": 11.263078689575195,
+    "max_error_px": 18.146228790283203
+  },
+  {
+    "image": "dataset2_6b00fcb9_img.png",
+    "mean_error_px": 18.739912033081055,
+    "max_error_px": 26.121416091918945
+  },
+  {
+    "image": "dataset2_71eeae45_img.png",
+    "mean_error_px": 8.363174438476562,
+    "max_error_px": 17.016983032226562
+  },
+  {
+    "image": "dataset2_720cbda7_img.png",
+    "mean_error_px": 12.065568923950195,
+    "max_error_px": 19.162477493286133
+  },
+  {
+    "image": "dataset2_787d74e1_img.png",
+    "mean_error_px": 11.5155668258667,
+    "max_error_px": 17.348045349121094
+  },
+  {
+    "image": "dataset2_80f6d815_img.png",
+    "mean_error_px": 9.073474884033203,
+    "max_error_px": 15.301023483276367
+  },
+  {
+    "image": "dataset2_8be637e3_img.png",
+    "mean_error_px": 8.49359130859375,
+    "max_error_px": 14.73169994354248
+  },
+  {
+    "image": "dataset2_8f09e041_img.png",
+    "mean_error_px": 15.760425567626953,
+    "max_error_px": 22.903093338012695
+  },
+  {
+    "image": "dataset2_941766cd_img.png",
+    "mean_error_px": 11.80343246459961,
+    "max_error_px": 17.07232093811035
+  },
+  {
+    "image": "dataset2_958e0f55_img.png",
+    "mean_error_px": 9.095806121826172,
+    "max_error_px": 12.109983444213867
+  },
+  {
+    "image": "dataset2_998634b0_img.png",
+    "mean_error_px": 11.92746353149414,
+    "max_error_px": 20.839147567749023
+  },
+  {
+    "image": "dataset2_9cfaeddb_img.png",
+    "mean_error_px": 9.797453880310059,
+    "max_error_px": 17.079143524169922
+  },
+  {
+    "image": "dataset2_9d6f28e5_img.png",
+    "mean_error_px": 11.250893592834473,
+    "max_error_px": 12.807708740234375
+  },
+  {
+    "image": "dataset2_a0ac8a2b_img.png",
+    "mean_error_px": 14.507120132446289,
+    "max_error_px": 23.22534942626953
+  },
+  {
+    "image": "dataset2_a0e3eff0_img.png",
+    "mean_error_px": 6.297011375427246,
+    "max_error_px": 7.90000057220459
+  },
+  {
+    "image": "dataset2_a75f9a8a_img.png",
+    "mean_error_px": 7.203451633453369,
+    "max_error_px": 9.732836723327637
+  },
+  {
+    "image": "dataset2_a908931c_img.png",
+    "mean_error_px": 6.021438121795654,
+    "max_error_px": 10.987481117248535
+  },
+  {
+    "image": "dataset2_aa86769f_img.png",
+    "mean_error_px": 8.834975242614746,
+    "max_error_px": 13.632194519042969
+  },
+  {
+    "image": "dataset2_ab7fbef6_img.png",
+    "mean_error_px": 7.701709747314453,
+    "max_error_px": 16.949636459350586
+  },
+  {
+    "image": "dataset2_af7fb2e1_img.png",
+    "mean_error_px": 10.806373596191406,
+    "max_error_px": 11.107121467590332
+  },
+  {
+    "image": "dataset2_b28e0247_img.png",
+    "mean_error_px": 8.379940032958984,
+    "max_error_px": 10.647377967834473
+  },
+  {
+    "image": "dataset2_b2e0d733_img.png",
+    "mean_error_px": 6.434248924255371,
+    "max_error_px": 12.380828857421875
+  },
+  {
+    "image": "dataset2_b3134b3b_img.png",
+    "mean_error_px": 12.48778247833252,
+    "max_error_px": 17.711612701416016
+  },
+  {
+    "image": "dataset2_b4d41008_img.png",
+    "mean_error_px": 10.205774307250977,
+    "max_error_px": 17.14775848388672
+  },
+  {
+    "image": "dataset2_b63c8fb1_img.png",
+    "mean_error_px": 6.731482982635498,
+    "max_error_px": 14.053276062011719
+  },
+  {
+    "image": "dataset2_bcd66431_img.png",
+    "mean_error_px": 8.111651420593262,
+    "max_error_px": 13.092561721801758
+  },
+  {
+    "image": "dataset2_bd6bf02a_img.png",
+    "mean_error_px": 9.825403213500977,
+    "max_error_px": 20.370670318603516
+  },
+  {
+    "image": "dataset2_c5b3a56e_img.png",
+    "mean_error_px": 12.537328720092773,
+    "max_error_px": 15.356287002563477
+  },
+  {
+    "image": "dataset2_c6cc914e_img.png",
+    "mean_error_px": 6.170628070831299,
+    "max_error_px": 13.90127944946289
+  },
+  {
+    "image": "dataset2_c7f6f877_img.png",
+    "mean_error_px": 10.071953773498535,
+    "max_error_px": 18.551904678344727
+  },
+  {
+    "image": "dataset2_c9aa79c7_img.png",
+    "mean_error_px": 8.970207214355469,
+    "max_error_px": 19.051795959472656
+  },
+  {
+    "image": "dataset2_d1e1609a_img.png",
+    "mean_error_px": 13.436779022216797,
+    "max_error_px": 19.361370086669922
+  },
+  {
+    "image": "dataset2_d56863d7_img.png",
+    "mean_error_px": 8.666865348815918,
+    "max_error_px": 11.570917129516602
+  },
+  {
+    "image": "dataset2_d87492d6_img.png",
+    "mean_error_px": 7.568918704986572,
+    "max_error_px": 12.510436058044434
+  },
+  {
+    "image": "dataset2_daca9024_img.png",
+    "mean_error_px": 11.2759428024292,
+    "max_error_px": 17.83408546447754
+  },
+  {
+    "image": "dataset2_dc38e80d_img.png",
+    "mean_error_px": 6.7014007568359375,
+    "max_error_px": 12.444169044494629
+  },
+  {
+    "image": "dataset2_dd7a650d_img.png",
+    "mean_error_px": 10.494393348693848,
+    "max_error_px": 18.097900390625
+  },
+  {
+    "image": "dataset2_e1f01bdb_img.png",
+    "mean_error_px": 25.412269592285156,
+    "max_error_px": 41.80389404296875
+  },
+  {
+    "image": "dataset2_eb5fa874_img.png",
+    "mean_error_px": 10.886327743530273,
+    "max_error_px": 24.597267150878906
+  },
+  {
+    "image": "dataset2_ebfa8343_img.png",
+    "mean_error_px": 11.85881233215332,
+    "max_error_px": 23.780315399169922
+  },
+  {
+    "image": "dataset2_ef67fa00_img.png",
+    "mean_error_px": 13.245540618896484,
+    "max_error_px": 25.961076736450195
+  },
+  {
+    "image": "dataset2_f3359a2a_img.png",
+    "mean_error_px": 5.440187931060791,
+    "max_error_px": 7.819186687469482
+  },
+  {
+    "image": "dataset2_f4315a51_img.png",
+    "mean_error_px": 10.80550765991211,
+    "max_error_px": 21.832534790039062
+  },
+  {
+    "image": "dataset2_f56b8afa_img.png",
+    "mean_error_px": 8.46975326538086,
+    "max_error_px": 11.589970588684082
+  },
+  {
+    "image": "dataset2_f6029ba3_img.png",
+    "mean_error_px": 5.467758655548096,
+    "max_error_px": 14.72624683380127
+  },
+  {
+    "image": "dataset2_f93e57f5_img.png",
+    "mean_error_px": 12.21696949005127,
+    "max_error_px": 14.729155540466309
+  },
+  {
+    "image": "dataset2_fe4178c3_img.png",
+    "mean_error_px": 7.335812091827393,
+    "max_error_px": 18.101093292236328
+  },
+  {
+    "image": "dataset2_ff9ed8a6_img.png",
+    "mean_error_px": 13.51810073852539,
+    "max_error_px": 20.780467987060547
+  }
+]

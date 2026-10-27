@@ -4,13 +4,15 @@ from ultralytics import YOLO
 
 def main(args):
     data_yaml = Path(args.data).resolve()     # 轉絕對路徑，隔離全域設定
+    project_dir = Path(args.project).resolve()
     model = YOLO(args.model)
     model.train(
       data=str(data_yaml),
       epochs=args.epochs, patience=args.patience, imgsz=args.imgsz, batch=args.batch,
       device=args.device, workers=args.workers,
-      project=args.project, name=args.name,
+      project=str(project_dir), name=args.name, exist_ok=args.exist_ok,
       pretrained=args.pretrained, resume=args.resume, seed=args.seed,
+      save_period=args.save_period,
       fliplr=args.fliplr, flipud=args.flipud, degrees=args.degrees,
       shear=args.shear, perspective=args.perspective,
       mosaic=args.mosaic, mixup=args.mixup,
@@ -28,6 +30,8 @@ if __name__ == "__main__":
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--project", default="runs/train")
     p.add_argument("--name", default="yolo11n_run")
+    p.add_argument("--exist_ok", action="store_true")
+    p.add_argument("--save_period", type=int, default=-1)
     p.add_argument("--pretrained", action="store_true")
     p.add_argument("--resume", action="store_true")
     p.add_argument("--seed", type=int, default=42)

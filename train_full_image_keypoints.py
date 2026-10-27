@@ -27,6 +27,7 @@ from utils.simcc import compute_loss_simcc, simcc_label_encoder, simcc_loss_fn
 from utils.regression import compute_loss_direct_regression
 from utils.heatmap import compute_loss_heatmap
 from utils.ema import ModelEMA
+from utils.device import get_best_device
 from models.model import initialize_model
 
 from config import Paths, EMA, FullImageAugment
@@ -90,7 +91,8 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, h
         Nx = None
         Ny = None
     model = initialize_model(model_name, num_points=points_count, head_type=head_type, input_size=(input_size, input_size), Nx=Nx, Ny=Ny)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_best_device()
+    print(f"Using device: {device}")
     model.to(device)
 
     if head_type == "direct_regression":

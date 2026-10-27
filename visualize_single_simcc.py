@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from datasets.transforms import get_hip_base_transform
 from models.model import initialize_model
 from utils.evaluation import extract_info_from_model_path
+from utils.device import get_best_device
 
 # ==================== 使用者設定區 ====================
 MODEL_PATH = "results_nckuh_kfold/convnext_tiny_fpn1234concat_simcc_2d_sr3.0_sigma4.0_cropleft_mirror_224_200_0.0001_64_fold1_best.pth"
@@ -153,7 +154,7 @@ def plot_simcc_distribution_aligned(
 
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_best_device()
 
     # 1. 於模型名稱解析參數
     (

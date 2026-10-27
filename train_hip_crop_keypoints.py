@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 # from optim.muon import MuSGD
 
-from torch.utils.data import DataLoader, ConcatDataset
+from torch.utils.data import DataLoader, ConcatDataset, Subset
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,6 +20,7 @@ from utils.keypoint_metrics import calculate_nme, calculate_pixel_error
 from utils.keypoints import get_preds_and_targets
 from utils.experiment import build_experiment_name
 from utils.train_vis import GraphWrapper, plot_training_progress
+from utils.device import get_best_device
 from utils.simcc import (
     compute_loss_simcc,
     simcc_label_encoder,
@@ -38,6 +39,43 @@ def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
     np.random.seed(worker_seed)
     random.seed(worker_seed)
+
+
+def set_global_seed(seed):
+    """Seed Python, NumPy, and PyTorch for repeatable smoke experiments."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+
+def limit_dataset(dataset, max_samples, seed=42):
+    """Return a deterministic random subset for quick training smoke tests."""
+    if max_samples is None or max_samples >= len(dataset):
+        return dataset
+    if max_samples < 1:
+        raise ValueError("max_samples must be positive")
+
+    generator = torch.Generator().manual_seed(seed)
+    indices = torch.randperm(len(dataset), generator=generator)[:max_samples].tolist()
+    return Subset(dataset, indices)
+
+
+def write_training_log(path, epoch_losses, epoch_nmes, epoch_pixel_errors,
+                       val_losses, val_nmes, val_pixel_errors):
+    """Persist completed epoch metrics so long runs keep their progress."""
+    lines = []
+    for epoch, metrics in enumerate(
+        zip(epoch_losses, epoch_nmes, epoch_pixel_errors,
+            val_losses, val_nmes, val_pixel_errors),
+        1,
+    ):
+        loss, nme, pixel_error, val_loss, val_nme, val_pixel_error = metrics
+        lines.append(
+            f"Epoch {epoch}: Loss = {loss:.4f}, NME = {nme:.4f}, "
+            f"Pixel Error = {pixel_error:.4f}, Val Loss = {val_loss:.4f}, "
+            f"Val NME = {val_nme:.4f}, Val Pixel Error = {val_pixel_error:.4f}"
+        )
+    Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 # MUSGD 的參數分組設定
 def get_muon_param_groups(model, lr, weight_decay):
@@ -67,11 +105,15 @@ def get_muon_param_groups(model, lr, weight_decay):
         }
     ]
 
-def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, side, mirror, head_type="direct_regression", split_ratio=2, sigma=6.0, fold_index=None):
+def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, side, mirror,
+          head_type="direct_regression", split_ratio=2, sigma=6.0, fold_index=None,
+          max_train_samples=None, max_val_samples=None, num_workers=0, show_plot=True,
+          seed=42):
+    set_global_seed(seed)
     
     data_dir = Path(data_dir)
 
-    PROJECT_ROOT = Path(__file__).resolve().parents[1]
+    PROJECT_ROOT = Path(__file__).resolve().parent
     if not data_dir.is_absolute():
         data_dir = (PROJECT_ROOT / data_dir).resolve()
     
@@ -137,6 +179,9 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, s
         train_dataset = ConcatDataset([train_dataset, mirrored_dataset])
         val_dataset = ConcatDataset([val_dataset, mirrored_val_dataset])
         print(f"using mirrored data from {opposite_side} side, total training samples: {len(train_dataset)}")
+
+    train_dataset = limit_dataset(train_dataset, max_train_samples, seed=seed)
+    val_dataset = limit_dataset(val_dataset, max_val_samples, seed=seed + 1)
         
     # 資料增強
     augmented_dataset = ProbAugmentedKeypointDataset(train_dataset, p=Augment.PROB, max_translate_x=Augment.MAX_TRANSLATE_X, max_translate_y=Augment.MAX_TRANSLATE_Y, max_angle=Augment.MAX_ANGLE, clamp=True) 
@@ -149,12 +194,29 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, s
     #     display_image(augmented_dataset2, i)
     
     g = torch.Generator()
-    g.manual_seed(42)
+    g.manual_seed(seed)
     
-    train_loader = DataLoader(augmented_dataset, batch_size=batch_size, shuffle=True,
-                                num_workers=24, pin_memory=True, prefetch_factor=8, worker_init_fn=seed_worker, generator=g)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False,
-                                num_workers=24, pin_memory=True, prefetch_factor=8)
+    loader_kwargs = {
+        "num_workers": num_workers,
+        "pin_memory": torch.cuda.is_available(),
+    }
+    if num_workers > 0:
+        loader_kwargs["prefetch_factor"] = 2
+        loader_kwargs["worker_init_fn"] = seed_worker
+
+    train_loader = DataLoader(
+        augmented_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        generator=g,
+        **loader_kwargs,
+    )
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        **loader_kwargs,
+    )
 
     print(f"[{side.upper()}] Training samples: {len(augmented_dataset)}, Validation samples: {len(val_dataset)}")
     
@@ -166,7 +228,8 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, s
         Nx = None
         Ny = None
     model = initialize_model(model_name, num_points=points_count, head_type=head_type, input_size=(input_size, input_size), Nx=Nx, Ny=Ny)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_best_device()
+    print(f"Using device: {device}")
     model.to(device)
 
     if head_type == "direct_regression":
@@ -256,6 +319,15 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, s
     )
     if fold_index is not None:
         exp_name += f"_fold{fold_index}"
+    if max_train_samples is not None:
+        exp_name += f"_ntrain{max_train_samples}"
+    if max_val_samples is not None:
+        exp_name += f"_nval{max_val_samples}"
+
+    os.makedirs(Paths.LOGS_DIR, exist_ok=True)
+    os.makedirs(Paths.MODELS_DIR, exist_ok=True)
+    model_path = os.path.join(Paths.MODELS_DIR, f"{exp_name}_best.pth")
+    training_log_path = os.path.join(Paths.LOGS_DIR, f"{exp_name}_training_log.txt")
     
     run_name = exp_name
     tb_dir = os.path.join(Paths.LOGS_DIR, "tb", run_name)
@@ -378,6 +450,7 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, s
             best_val_pixel_error = val_pixel_error
             best_model_state = copy.deepcopy(ema.ema.state_dict())
             best_epoch_index = epoch
+            torch.save(best_model_state, model_path)
             print(f"---------------- Validation pixel error improved to {best_val_pixel_error:.4f}, saving model. ----------------")
              
         # Log metrics to TensorBoard
@@ -385,15 +458,18 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, s
         writer.add_scalars("nme/epoch",  {"train": epoch_nme,  "val": val_nme},  epoch)
         writer.add_scalars("pixel/epoch",{"train": epoch_pixel_error, "val": val_pixel_error}, epoch)
         writer.add_scalar("opt/lr", optimizer.param_groups[0]['lr'], epoch)
+        write_training_log(
+            training_log_path,
+            epoch_losses,
+            epoch_nmes,
+            epoch_pixel_errors,
+            val_losses,
+            val_nmes,
+            val_pixel_errors,
+        )
         
     # Save the training and validation progress
-    os.makedirs(Paths.LOGS_DIR, exist_ok=True)
-    os.makedirs(Paths.MODELS_DIR, exist_ok=True)
-    
-    # Save the best model (with the lowest validation loss)
-    if best_model_state:
-        model_path = os.path.join(Paths.MODELS_DIR, f"{exp_name}_best.pth")
-        torch.save(best_model_state, model_path)
+    if best_model_state is not None:
         print(f"Best model saved to: {model_path}")
 
     # 找出 best epoch 的 train/val metrics（方便 K-fold 平均）
@@ -434,24 +510,18 @@ def train(data_dir, model_name, input_size, epochs, learning_rate, batch_size, s
     epochs_range = range(1, epochs + 1)
     plot_training_progress(
         epochs_range, epoch_losses, val_losses, epoch_nmes, val_nmes, epoch_pixel_errors, val_pixel_errors,
-        loss_ylim=(0.01, 50),
-        nme_ylim = (3e-3, 3e-2),
-        pixel_error_ylim=(0.01, 50),
     )
 
     # Save the training plot
     training_plot_path = os.path.join(Paths.LOGS_DIR, f"{exp_name}_training_plot.png")
     plt.savefig(training_plot_path)
     print(f"Training plot saved to: {training_plot_path}")
-    plt.show()
+    if show_plot:
+        plt.show()
+    else:
+        plt.close()
 
     # Save the Loss, NME, and Pixel Error to a text file
-    training_log_path = os.path.join(Paths.LOGS_DIR, f"{exp_name}_training_log.txt")
-    with open(training_log_path, "w") as f:
-        for epoch, (loss, nme, pixel_error, val_loss, val_nme, val_pixel_error) in enumerate(
-                zip(epoch_losses, epoch_nmes, epoch_pixel_errors, val_losses, val_nmes, val_pixel_errors), 1):
-            f.write(f"Epoch {epoch}: Loss = {loss:.4f}, NME = {nme:.4f}, Pixel Error = {pixel_error:.4f}, "
-                    f"Val Loss = {val_loss:.4f}, Val NME = {val_nme:.4f}, Val Pixel Error = {val_pixel_error:.4f}\n")
     print(f"Training log saved to: {training_log_path}")
     
     return {
@@ -485,10 +555,18 @@ if __name__ == "__main__":
     parser.add_argument("--head_type", type=str, default="direct_regression", choices=["direct_regression", "simcc_1d", "simcc_2d", "simcc_2d_deconv", "heatmap"], help="Type of model head to use")
     parser.add_argument("--split_ratio", type=float, default=2, help="SimCC split ratio for label encoding")
     parser.add_argument("--sigma", type=float, default=6.0, help="Sigma for SimCC and heatmap generation")
+    parser.add_argument("--max_train_samples", type=int, default=None, help="Limit training samples for smoke tests")
+    parser.add_argument("--max_val_samples", type=int, default=None, help="Limit validation samples for smoke tests")
+    parser.add_argument("--num_workers", type=int, default=0, help="DataLoader workers (default: 0 for portability)")
+    parser.add_argument("--no_show", action="store_true", help="Save plots without opening an interactive window")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed (default: 42)")
     
     args = parser.parse_args()
 
     train(args.data_dir, args.model_name, args.input_size, args.epochs, args.learning_rate,
-         args.batch_size, args.side, args.mirror, head_type=args.head_type, split_ratio=args.split_ratio, sigma=args.sigma)
+         args.batch_size, args.side, args.mirror, head_type=args.head_type,
+         split_ratio=args.split_ratio, sigma=args.sigma,
+         max_train_samples=args.max_train_samples, max_val_samples=args.max_val_samples,
+         num_workers=args.num_workers, show_plot=not args.no_show, seed=args.seed)
 
     # python3 train_hip_crop_keypoints.py --data_dir Hip-Joint-Keypoint-Detection/data --model_name convnext_tiny_fpn1234concat --input_size 224 --epochs 100 --learning_rate 0.0001 --batch_size 64 --side left --mirror --head_type simcc_2d --split_ratio 3.0 --sigma 4.0

@@ -34,6 +34,7 @@ from utils.hip_geometry import (
     project_to_metric6
 )
 from utils.plots import add_sigma_guides, add_zscore_right_axis
+from utils.device import get_best_device
 from utils.evaluation import extract_info_from_model_path
 from collections import OrderedDict
 from config import YOLOConfig, Eval, Dataset as DataConfig
@@ -995,7 +996,7 @@ def predict(model_name, kp_left_path, kp_right_path, yolo_weights, data_dir, out
     yolo_model = YOLO(yolo_weights)
     
     kp_left = kp_right = None
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_best_device()
     
     if use_left:
         kp_left = initialize_model(model_name, points_per_side, head_type, (input_size, input_size), Nx, Ny)
