@@ -1,0 +1,14 @@
+*
+!.dockerignore
+!Dockerfile
+!app.py
+!config.py
+!requirements-app.txt
+!datasets/
+!datasets/**
+!models/
+!models/**
+!scripts/
+!scripts/download_weights.py
+!utils/
+!utils/**

@@ -262,6 +262,22 @@ checkpoint elsewhere. Generated model weights remain intentionally gitignored;
 the published MVP checkpoints are available from the
 [mtddh-mvp-v0.1.0 release](https://github.com/zhangaohan6/Hip-Joint-Keypoint-Detection/releases/tag/mtddh-mvp-v0.1.0).
 
+### Docker deployment
+
+The production image uses CPU-only PyTorch, downloads and verifies the published
+checkpoints during the build, runs as an unprivileged user, and serves Streamlit
+on port `7860` (the default Hugging Face Spaces Docker port).
+
+```bash
+docker build -t trustworthy-hip-imaging-ai .
+docker run --rm -p 7860:7860 trustworthy-hip-imaging-ai
+curl --fail http://localhost:7860/_stcore/health
+```
+
+Open <http://localhost:7860> and upload a full pelvis X-ray. Dataset files,
+training outputs, local checkpoints, and virtual environments are excluded from
+the Docker build context.
+
 ### Reproducible 5-epoch smoke baseline
 
 ```bash
