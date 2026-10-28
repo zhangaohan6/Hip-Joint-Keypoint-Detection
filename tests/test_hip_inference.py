@@ -1,6 +1,16 @@
-import numpy as np
+from types import SimpleNamespace
 
-from utils.hip_inference import CropBox, prepare_crop_box, restore_crop_keypoints
+import numpy as np
+import pytest
+import torch
+from PIL import Image
+
+from utils.hip_inference import (
+    CropBox,
+    detect_bilateral_rois,
+    prepare_crop_box,
+    restore_crop_keypoints,
+)
 
 
 def test_prepare_crop_box_matches_square_expansion_and_clamping():
@@ -34,3 +44,44 @@ def test_restore_crop_keypoints_reverses_mirror_and_reordering():
     )
 
     np.testing.assert_allclose(restored, np.array([[30.0, 40.0], [10.0, 20.0]]))
+
+
+class FakeDetector:
+    def __init__(self, classes, scores, boxes):
+        self.boxes = SimpleNamespace(
+            cls=torch.tensor(classes),
+            conf=torch.tensor(scores),
+            xyxy=torch.tensor(boxes),
+        )
+
+    def predict(self, **kwargs):
+        return [SimpleNamespace(boxes=self.boxes)]
+
+
+def test_detect_bilateral_rois_selects_best_box_per_side():
+    detector = FakeDetector(
+        classes=[0, 1, 0],
+        scores=[0.7, 0.8, 0.9],
+        boxes=[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+    )
+
+    detections, confidences = detect_bilateral_rois(
+        image=Image.new("L", (20, 20)),
+        detector=detector,
+    )
+
+    assert detections == {
+        "LeftHip": (9.0, 10.0, 11.0, 12.0),
+        "RightHip": (5.0, 6.0, 7.0, 8.0),
+    }
+    assert confidences == pytest.approx({"left": 0.9, "right": 0.8})
+
+
+def test_detect_bilateral_rois_rejects_missing_side():
+    detector = FakeDetector(classes=[0], scores=[0.9], boxes=[[1, 2, 3, 4]])
+
+    with pytest.raises(ValueError, match="right hip ROI"):
+        detect_bilateral_rois(
+            image=Image.new("L", (20, 20)),
+            detector=detector,
+        )

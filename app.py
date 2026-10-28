@@ -1,28 +1,44 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import numpy as np
 import streamlit as st
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, UnidentifiedImageError
 
 from utils.csv_parser import parse_csv_get_points
 from utils.hip_geometry import (
     calculate_acetabular_index_angles,
     unify_keypoints_format,
 )
-from utils.hip_inference import load_keypoint_model, predict_bilateral_keypoints
+from utils.hip_inference import (
+    detect_bilateral_rois,
+    load_keypoint_model,
+    load_roi_detector,
+    predict_keypoints_from_detections,
+)
 from utils.measurement_uncertainty import estimate_angle_uncertainty
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATASET_ROOT = PROJECT_ROOT / "dataset" / "mtddh_xray_2d"
-DETECTIONS_ROOT = DATASET_ROOT / "detections"
 MODEL_PATH = (
     PROJECT_ROOT
     / "weights"
     / "convnext_tiny_fpn1234concat_simcc_2d_sr3.0_sigma4.0_"
       "cropleft_mirror_224_30_0.0001_64_best.pth"
+)
+YOLO_MODEL_PATH = Path(
+    os.environ.get(
+        "HIP_YOLO_WEIGHTS",
+        PROJECT_ROOT
+        / "runs"
+        / "train"
+        / "yolo11n_mtddh_640"
+        / "weights"
+        / "best.pt",
+    )
 )
 
 
@@ -47,14 +63,34 @@ def load_cached_model(model_path: str):
     return load_keypoint_model(Path(model_path))
 
 
+@st.cache_resource(show_spinner="Loading YOLO11n bilateral ROI detector...")
+def load_cached_detector(model_path: str):
+    return load_roi_detector(Path(model_path))
+
+
 def draw_measurement_overlay(
     image: Image.Image,
     prediction: np.ndarray,
     ground_truth: np.ndarray | None = None,
+    detections: dict[str, tuple[float, float, float, float]] | None = None,
+    detection_confidences: dict[str, float] | None = None,
 ) -> Image.Image:
     points_12 = unify_keypoints_format(prediction)
     canvas = image.convert("RGB").copy()
     draw = ImageDraw.Draw(canvas)
+
+    if detections is not None:
+        for side, label, color in (
+            ("left", "LeftHip", (40, 180, 255)),
+            ("right", "RightHip", (190, 80, 255)),
+        ):
+            if label not in detections:
+                continue
+            x1, y1, x2, y2 = detections[label]
+            draw.rectangle((x1, y1, x2, y2), outline=color, width=3)
+            confidence = (detection_confidences or {}).get(side)
+            text = label if confidence is None else f"{label} {confidence:.2f}"
+            draw.text((x1 + 4, y1 + 4), text, fill=color)
 
     p1, p3, p7, p9 = points_12[0], points_12[2], points_12[6], points_12[8]
     draw.line([tuple(p3), tuple(p7)], fill=(0, 255, 255), width=3)
@@ -95,13 +131,19 @@ def main() -> None:
     )
 
     samples = find_samples(DATASET_ROOT)
-    if not samples:
-        st.error(
-            "Prepared MTDDH samples were not found. Run `bash prepare_MTDDH_dataset` first."
-        )
-        return
+    input_options = ["Upload full pelvis X-ray"]
+    if samples:
+        input_options.insert(0, "Public MTDDH sample")
+    input_mode = st.sidebar.radio("Input source", input_options)
 
-    selected_stem = st.sidebar.selectbox("Public MTDDH sample", list(samples))
+    selected_stem = None
+    uploaded_file = None
+    if input_mode == "Public MTDDH sample":
+        selected_stem = st.sidebar.selectbox("Public MTDDH sample", list(samples))
+    else:
+        uploaded_file = st.sidebar.file_uploader(
+            "Pelvis X-ray", type=["jpg", "jpeg", "png"]
+        )
     keypoint_std_px = st.sidebar.slider(
         "Assumed keypoint error (pixels)", 0.0, 10.0, 2.0, 0.5
     )
@@ -115,55 +157,99 @@ def main() -> None:
     if not MODEL_PATH.exists():
         st.error(f"Trained checkpoint was not found: `{MODEL_PATH}`")
         return
-
-    image_path, annotation_path = samples[selected_stem]
-    image = Image.open(image_path)
-    ground_truth = parse_csv_get_points(annotation_path)
-    model_bundle = load_cached_model(str(MODEL_PATH))
-    with st.spinner("Running bilateral keypoint inference..."):
-        prediction, _ = predict_bilateral_keypoints(
-            image,
-            image_path.name,
-            DETECTIONS_ROOT,
-            model_bundle,
+    if not YOLO_MODEL_PATH.exists():
+        st.error(
+            f"YOLO checkpoint was not found: `{YOLO_MODEL_PATH}`. "
+            "Set `HIP_YOLO_WEIGHTS` to an alternate checkpoint path."
         )
+        return
+
+    if input_mode == "Public MTDDH sample":
+        image_path, annotation_path = samples[selected_stem]
+        image = Image.open(image_path).convert("RGB")
+        ground_truth = parse_csv_get_points(annotation_path)
+        image_label = selected_stem
+    else:
+        if uploaded_file is None:
+            st.info("Upload a full pelvis X-ray to run automatic bilateral inference.")
+            return
+        try:
+            image = Image.open(uploaded_file).convert("RGB")
+        except (UnidentifiedImageError, OSError):
+            st.error("The uploaded file could not be decoded as an image.")
+            return
+        ground_truth = None
+        image_label = Path(uploaded_file.name).stem
+
+    detector = load_cached_detector(str(YOLO_MODEL_PATH))
+    model_bundle = load_cached_model(str(MODEL_PATH))
+    try:
+        with st.spinner("Detecting bilateral hip ROIs..."):
+            detections, detection_confidences = detect_bilateral_rois(image, detector)
+        with st.spinner("Running bilateral keypoint inference..."):
+            prediction, _ = predict_keypoints_from_detections(
+                image, detections, model_bundle
+            )
+    except ValueError as error:
+        st.error(f"Automatic inference stopped: {error}")
+        return
 
     points_12 = unify_keypoints_format(prediction)
     left_angle, right_angle = calculate_acetabular_index_angles(points_12)
-    gt_left_angle, gt_right_angle = calculate_acetabular_index_angles(
-        unify_keypoints_format(ground_truth)
-    )
+    if ground_truth is not None:
+        gt_left_angle, gt_right_angle = calculate_acetabular_index_angles(
+            unify_keypoints_format(ground_truth)
+        )
     uncertainty = estimate_angle_uncertainty(
         prediction,
         keypoint_std_px=keypoint_std_px,
         samples=monte_carlo_samples,
     )
 
-    overlay = draw_measurement_overlay(image, prediction, ground_truth)
-    point_errors = np.linalg.norm(prediction - ground_truth, axis=1)
+    overlay = draw_measurement_overlay(
+        image,
+        prediction,
+        ground_truth,
+        detections,
+        detection_confidences,
+    )
     image_col, metrics_col = st.columns([2, 1])
     with image_col:
         st.image(
             overlay,
-            caption=f"{selected_stem} — red × prediction, green ○ ground truth",
+            caption=(
+                f"{image_label} — red × prediction, blue/purple YOLO ROI"
+                + (", green ○ ground truth" if ground_truth is not None else "")
+            ),
             width="stretch",
         )
     with metrics_col:
         st.subheader("Model prediction")
-        st.metric(
-            "Left AI angle",
-            f"{left_angle:.2f}°",
-            delta=f"{left_angle - gt_left_angle:+.2f}° vs GT",
-            delta_color="off",
-        )
-        st.metric(
-            "Right AI angle",
-            f"{right_angle:.2f}°",
-            delta=f"{right_angle - gt_right_angle:+.2f}° vs GT",
-            delta_color="off",
-        )
+        if ground_truth is not None:
+            st.metric(
+                "Left AI angle",
+                f"{left_angle:.2f}°",
+                delta=f"{left_angle - gt_left_angle:+.2f}° vs GT",
+                delta_color="off",
+            )
+            st.metric(
+                "Right AI angle",
+                f"{right_angle:.2f}°",
+                delta=f"{right_angle - gt_right_angle:+.2f}° vs GT",
+                delta_color="off",
+            )
+        else:
+            st.metric("Left AI angle", f"{left_angle:.2f}°")
+            st.metric("Right AI angle", f"{right_angle:.2f}°")
         st.metric("Absolute asymmetry", f"{abs(left_angle - right_angle):.2f}°")
-        st.metric("Mean keypoint error", f"{point_errors.mean():.2f} px")
+        if ground_truth is not None:
+            point_errors = np.linalg.norm(prediction - ground_truth, axis=1)
+            st.metric("Mean keypoint error", f"{point_errors.mean():.2f} px")
+        st.caption(
+            "YOLO confidence: "
+            f"left {detection_confidences['left']:.3f}, "
+            f"right {detection_confidences['right']:.3f}"
+        )
 
         st.subheader("Localization sensitivity")
         widest_interval = 0.0
@@ -193,11 +279,11 @@ def main() -> None:
 
     with st.expander("Pipeline scope and data use"):
         st.write(
-            "The keypoints are produced by the trained ConvNeXt-SimCC model. This "
-            "demo uses the public MTDDH detection boxes only to define the left and "
-            "right hip crops; ground-truth keypoints are used solely for the displayed "
-            "error comparison. Arbitrary full-image upload requires the separate ROI "
-            "detector planned for the next stage."
+            "The YOLO11n detector finds the left and right hip ROIs, then the trained "
+            "ConvNeXt-SimCC model predicts four keypoints per side. For public MTDDH "
+            "samples, ground-truth keypoints are used only for the displayed error "
+            "comparison and never as model input. Uploaded images have no ground-truth "
+            "comparison."
         )
 
 

@@ -9,6 +9,7 @@ import torchvision.transforms.functional as TF
 from PIL import Image
 
 from config import Dataset as DataConfig
+from config import YOLOConfig
 from datasets.hip_crop_keypoints import read_detection_for_image
 from datasets.transforms import get_hip_base_transform
 from models.model import initialize_model
@@ -109,27 +110,84 @@ def load_keypoint_model(model_path: Path, model_name: str = "convnext_tiny_fpn12
     return model, device, head_type, input_size, nx, ny
 
 
-def predict_bilateral_keypoints(
+def load_roi_detector(model_path: Path):
+    """Load an Ultralytics detector lazily so geometry-only tests stay lightweight."""
+    from ultralytics import YOLO
+
+    return YOLO(str(model_path))
+
+
+def detect_bilateral_rois(
     image: Image.Image,
-    image_name: str,
-    detections_dir: Path,
+    detector,
+    conf: float = 0.25,
+    iou: float = 0.70,
+) -> tuple[dict[str, tuple[float, float, float, float]], dict[str, float]]:
+    """Return the highest-confidence YOLO box for each hip side."""
+    results = detector.predict(
+        source=image.convert("RGB"),
+        conf=conf,
+        iou=iou,
+        max_det=20,
+        verbose=False,
+    )
+    if (
+        not results
+        or results[0].boxes is None
+        or results[0].boxes.cls.numel() == 0
+    ):
+        raise ValueError("YOLO did not detect either hip ROI.")
+
+    result_boxes = results[0].boxes
+    classes = result_boxes.cls.detach().cpu().numpy().astype(int)
+    scores = result_boxes.conf.detach().cpu().numpy()
+    coordinates = result_boxes.xyxy.detach().cpu().numpy()
+    class_ids = {"left": YOLOConfig.LEFT_CLS, "right": YOLOConfig.RIGHT_CLS}
+    detections: dict[str, tuple[float, float, float, float]] = {}
+    confidences: dict[str, float] = {}
+
+    for side, class_id in class_ids.items():
+        matching_indices = np.flatnonzero(classes == class_id)
+        if matching_indices.size == 0:
+            continue
+        best_index = matching_indices[np.argmax(scores[matching_indices])]
+        detections[DataConfig.SIDE_LABELS[side]] = tuple(
+            float(value) for value in coordinates[best_index]
+        )
+        confidences[side] = float(scores[best_index])
+
+    missing = [
+        side
+        for side in class_ids
+        if DataConfig.SIDE_LABELS[side] not in detections
+    ]
+    if missing:
+        raise ValueError(f"YOLO did not detect the {', '.join(missing)} hip ROI.")
+    return detections, confidences
+
+
+def predict_keypoints_from_detections(
+    image: Image.Image,
+    detections: dict[str, tuple[float, float, float, float]],
     model_bundle,
 ) -> tuple[np.ndarray, dict[str, CropBox]]:
-    """Predict four keypoints per hip and return them in full-image coordinates."""
+    """Predict bilateral keypoints from externally supplied full-image ROI boxes."""
     model, device, head_type, input_size, nx, ny = model_bundle
-    detections = read_detection_for_image(str(detections_dir), image_name)
     transform = get_hip_base_transform(input_size)
     grayscale = image.convert("L")
     predicted_sides = []
     crop_boxes = {}
 
     for side in ("left", "right"):
-        crop_box = prepare_crop_box(
-            grayscale.size,
-            detections[DataConfig.SIDE_LABELS[side]],
-        )
+        label = DataConfig.SIDE_LABELS[side]
+        if label not in detections:
+            raise ValueError(f"Missing required {label} detection.")
+        crop_box = prepare_crop_box(grayscale.size, detections[label])
         crop = grayscale.crop(
-            tuple(int(round(value)) for value in (crop_box.x1, crop_box.y1, crop_box.x2, crop_box.y2))
+            tuple(
+                int(round(value))
+                for value in (crop_box.x1, crop_box.y1, crop_box.x2, crop_box.y2)
+            )
         )
         tensor = transform(crop)
         mirrored = side == "right"
@@ -158,3 +216,14 @@ def predict_bilateral_keypoints(
         crop_boxes[side] = crop_box
 
     return np.concatenate(predicted_sides), crop_boxes
+
+
+def predict_bilateral_keypoints(
+    image: Image.Image,
+    image_name: str,
+    detections_dir: Path,
+    model_bundle,
+) -> tuple[np.ndarray, dict[str, CropBox]]:
+    """Predict four keypoints per hip and return them in full-image coordinates."""
+    detections = read_detection_for_image(str(detections_dir), image_name)
+    return predict_keypoints_from_detections(image, detections, model_bundle)

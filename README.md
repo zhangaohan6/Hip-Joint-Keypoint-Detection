@@ -244,13 +244,17 @@ PATH="$PWD/.venv/bin:$PATH" bash prepare_MTDDH_dataset
 .venv/bin/streamlit run app.py
 ```
 
-When the trained checkpoint is present, the Streamlit app runs bilateral
-ConvNeXt-SimCC inference on public MTDDH samples, maps crop predictions back to
-the full X-ray, compares them with ground truth, calculates left/right
-acetabular-index angles, and runs a Monte Carlo keypoint-perturbation analysis.
-The public detection boxes define the hip ROIs; ground-truth keypoints are used
-only for the displayed comparison. The interval is an engineering sensitivity
+When the trained checkpoints are present, the Streamlit app accepts either a
+public MTDDH sample or an uploaded full pelvis X-ray. YOLO11n detects both hip
+ROIs, then ConvNeXt-SimCC predicts four keypoints per side and maps them back to
+the full image before calculating left/right acetabular-index angles. Public
+sample ground-truth keypoints are used only for the displayed comparison; they
+are never model input. The Monte Carlo interval is an engineering sensitivity
 estimate, not calibrated model confidence or clinical uncertainty.
+
+By default, the app loads the detector from
+`runs/train/yolo11n_mtddh_640/weights/best.pt`. Set `HIP_YOLO_WEIGHTS` to use a
+checkpoint elsewhere. Generated model weights remain intentionally gitignored.
 
 ### Reproducible 5-epoch smoke baseline
 
