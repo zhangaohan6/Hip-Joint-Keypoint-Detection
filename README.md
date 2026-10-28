@@ -235,6 +235,8 @@ uv python install 3.10
 uv venv --python 3.10 .venv
 uv pip install --python .venv/bin/python -r requirements.txt
 
+.venv/bin/python scripts/download_weights.py
+
 PATH="$PWD/.venv/bin:$PATH" bash prepare_MTDDH_dataset
 .venv/bin/python split.py \
   --dataset dataset/mtddh_xray_2d --out data \
@@ -244,7 +246,9 @@ PATH="$PWD/.venv/bin:$PATH" bash prepare_MTDDH_dataset
 .venv/bin/streamlit run app.py
 ```
 
-When the trained checkpoints are present, the Streamlit app accepts either a
+The checkpoint downloader fetches the reproducible MVP release assets and
+verifies their SHA256 digests before atomically installing them. The Streamlit
+app then accepts either a
 public MTDDH sample or an uploaded full pelvis X-ray. YOLO11n detects both hip
 ROIs, then ConvNeXt-SimCC predicts four keypoints per side and maps them back to
 the full image before calculating left/right acetabular-index angles. Public
@@ -254,7 +258,9 @@ estimate, not calibrated model confidence or clinical uncertainty.
 
 By default, the app loads the detector from
 `runs/train/yolo11n_mtddh_640/weights/best.pt`. Set `HIP_YOLO_WEIGHTS` to use a
-checkpoint elsewhere. Generated model weights remain intentionally gitignored.
+checkpoint elsewhere. Generated model weights remain intentionally gitignored;
+the published MVP checkpoints are available from the
+[mtddh-mvp-v0.1.0 release](https://github.com/zhangaohan6/Hip-Joint-Keypoint-Detection/releases/tag/mtddh-mvp-v0.1.0).
 
 ### Reproducible 5-epoch smoke baseline
 
