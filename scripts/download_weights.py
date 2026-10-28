@@ -9,6 +9,7 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlparse
 from urllib.request import urlopen
 
 
@@ -63,6 +64,8 @@ def download_asset(asset: Asset, project_root: Path, base_url: str, force: bool)
 
     destination.parent.mkdir(parents=True, exist_ok=True)
     url = f"{base_url.rstrip('/')}/{asset.name}"
+    if urlparse(url).scheme not in {"http", "https"}:
+        raise ValueError("Checkpoint URLs must use HTTP or HTTPS.")
     temporary_path: Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
@@ -73,7 +76,7 @@ def download_asset(asset: Asset, project_root: Path, base_url: str, force: bool)
         ) as temporary_file:
             temporary_path = Path(temporary_file.name)
             print(f"Downloading {url}")
-            with urlopen(url) as response:
+            with urlopen(url) as response:  # nosec B310: scheme restricted above
                 shutil.copyfileobj(response, temporary_file, length=1024 * 1024)
 
         actual_sha256 = file_sha256(temporary_path)
